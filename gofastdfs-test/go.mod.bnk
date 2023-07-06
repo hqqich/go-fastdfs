@@ -1,0 +1,15 @@
+module gofast
+
+go 1.18
+
+require (
+	github.com/astaxie/beego v1.12.3
+	github.com/syndtr/goleveldb v1.0.0
+)
+
+require github.com/golang/snappy v0.0.0-20180518054509-2e65f85255db // indirect
+
+require (
+	github.com/eventials/go-tus v0.0.0-20220610120217-05d0564bb571
+	gopkg.in/yaml.v2 v2.2.8 // indirect
+)

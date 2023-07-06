@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8"/>
+  <title>go-fastdfs</title>
+  <style>form {
+    bargin: ''
+  }
+
+  .form-line {
+    display: block;
+    height: 30px;
+    margin: 8px;
+  }
+
+  #stdUpload {
+    background: #fafafa;
+    border-radius: 10px;
+    width: 745px;
+  }</style>
+  <!--				<link href="static/uppy.min.css" rel="stylesheet">-->
+  <link href="https://transloadit.edgly.net/releases/uppy/v0.30.0/dist/uppy.min.css" rel="stylesheet">
+
+
+  <script src="/static/vueui/vue.js"></script>
+  <link href="/static/vueui/index.css" rel="stylesheet">
+  <script src="/static/vueui/index.js"></script>
+  <script src="/static/lib/jquery360/jquery.min.js"></script>
+  <script src="/static/lib/axios0261/axios.min.js"></script>
+
+</head>
+
+<body>
+
+<div id="app">
+
+  <el-tag>{{title1}}</el-tag>
+  <el-form ref="form" :model="form" label-position="left" label-width="180px">
+
+
+    <el-form-item label="文件(file):">
+      <template>
+        <el-col :span="10">
+          <el-upload
+              class="upload-demo"
+              :auto-upload="false"
+              :on-change="handleChange"
+              :on-remove="handleRemove"
+              :before-remove="beforeRemove"
+              :file-list="fileList">
+            <el-button size="small" type="primary">点击上传</el-button>
+          </el-upload>
+
+        </el-col>
+      </template>
+    </el-form-item>
+
+
+    <el-form-item label="场景(scene): ">
+      <template>
+        <el-col :span="10">
+          <el-input v-model="form.scene"></el-input>
+        </el-col>
+      </template>
+    </el-form-item>
+
+
+    <el-form-item label="文件名(filename): ">
+      <template>
+        <el-col :span="10">
+          <el-input v-model="form.filename"></el-input>
+        </el-col>
+      </template>
+    </el-form-item>
+
+    <el-form-item label="输出(output): ">
+      <el-select v-model="form.output" placeholder="请选择输出方式">
+        <el-option label="json" value="json"></el-option>
+        <el-option label="json2" value="json2"></el-option>
+        <el-option label="xml" value="xml"></el-option>
+      </el-select>
+    </el-form-item>
+
+    <el-form-item label="自定义路径(path):">
+      <template>
+        <el-col :span="10">
+          <el-input v-model="form.path"></el-input>
+        </el-col>
+      </template>
+    </el-form-item>
+
+    <el-form-item label="google认证码(code):">
+      <template>
+        <el-col :span="10">
+          <el-input v-model="form.code"></el-input>
+        </el-col>
+      </template>
+    </el-form-item>
+
+    <el-form-item label="自定义认证(auth_token):">
+      <template>
+        <el-col :span="10">
+          <el-input v-model="form.auth_token"></el-input>
+        </el-col>
+      </template>
+    </el-form-item>
+
+    <el-form-item>
+      <el-button type="primary" @click="onSubmit">upload</el-button>
+      <el-button @click="cancelForm">取消</el-button>
+    </el-form-item>
+
+  </el-form>
+
+
+
+  <el-tag>断点续传（如果文件很大时可以考虑）</el-tag>
+</div>
+
+<!--
+
+<div id="stdUpload">
+
+  <form action="%s" method="post" enctype="multipart/form-data">
+					<span class="form-line">文件(file):
+					  <input type="file" id="file" name="file"/></span>
+    <span class="form-line">场景(scene):
+					  <input type="text" id="scene" name="scene" value="%s"/></span>
+    <span class="form-line">文件名(filename):
+					  <input type="text" id="filename" name="filename" value=""/></span>
+    <span class="form-line">输出(output):
+					  <input type="text" id="output" name="output" value="json"/></span>
+    <span class="form-line">自定义路径(path):
+					  <input type="text" id="path" name="path" value=""/></span>
+    <span class="form-line">google认证码(code):
+					  <input type="text" id="code" name="code" value=""/></span>
+    <span class="form-line">自定义认证(auth_token):
+					  <input type="text" id="auth_token" name="auth_token" value=""/></span>
+    <input type="submit" name="submit" value="upload"/>
+  </form>
+</div>
+
+-->
+
+<div>
+
+  <div id="drag-drop-area"></div>
+  <!--				  <script src="static/uppy.min.js"></script>-->
+  <script src="https://transloadit.edgly.net/releases/uppy/v0.30.0/dist/uppy.min.js"></script>
+  <script>
+
+    var app = new Vue({
+      el: '#app',
+      data: {
+        title1: '标准上传(强列建议使用这种方式)',
+        form: {
+          file: null,
+          scene: '',
+          filename: '',
+          output: 'json',
+          path: '',
+          code: '',
+          auth_token: '',
+        },
+        fileList: [],
+        formData: null,
+
+      },
+      created: function () {
+      },
+      methods: {
+        handleChange(file, fileList) {
+          this.formData = new FormData();
+          this.formData.append("file", file.raw);
+        },
+        onSubmit() {
+
+          // let formData = new FormData();
+          let formData = this.formData;
+          for (let key in this.form) {
+            formData.append(key, this.form[key]);
+          }
+
+          axios({
+            method: "post",
+            url: "/group1/upload",
+            headers: {
+              "Content-Type": "multipart/form-data"
+            },
+            withCredentials: true,
+            data: formData
+          }).then((res) => {
+            this.$alert(res.data, 'result', {
+              confirmButtonText: '确定',
+              callback: action => {
+                this.$message({
+                  type: 'info',
+                  message: `action: ${action}`
+                });
+              }
+            });
+          });
+        },
+        cancelForm() {
+
+        },
+        handleRemove(file, fileList) {
+          this.formData = null;
+        },
+        beforeRemove(file, fileList) {
+          return this.$confirm(`确定移除 ${file.name}？`);
+        }
+      }
+    })
+
+    var uppy = Uppy.Core().use(Uppy.Dashboard, {
+      inline: true,
+      target: '#drag-drop-area'
+    }).use(Uppy.Tus, {
+      endpoint: '%s'
+    })
+    uppy.on('complete', (result) => {
+      console.log(result);
+      console.log('Upload complete! We’ve uploaded these files:', result.successful);
+    })
+    //uppy.setMeta({ auth_token: '9ee60e59-cb0f-4578-aaba-29b9fc2919ca',callback_url:'http://127.0.0.1/callback' ,filename:'自定义文件名','path':'自定义path',scene:'自定义场景' })//这里是传递上传的认证参数,callback_url参数中 id为文件的ID,info 文转的基本信息json
+    uppy.setMeta({
+      auth_token: '9ee60e59-cb0f-4578-aaba-29b9fc2919ca',
+      callback_url: 'http://127.0.0.1/callback'
+    })//自定义参数与普通上传类似（虽然支持自定义，建议不要自定义，海量文件情况下，自定义很可能给自已给埋坑）
+  </script>
+</div>
+</body>
+</html>
